@@ -1,0 +1,57 @@
+/**===R===
+ * Add Custom UTM Tracer in WooCommerce orders dashboard
+ * @author Radoslav Nikolov
+ * @version 1.0.0
+* COOKIE HANDL UTM GRABBER (https://wordpress.org/plugins/handl-utm-grabber/)
+*/
+function rn_woocommerce_checkout_update_order_meta($order_id, $data){
+  $utm_source = $_COOKIE['utm_source'];
+	$utm_medium = $_COOKIE['utm_medium'];
+	$utm_campaign = $_COOKIE['utm_campaign'];
+	 $ref_url = $_COOKIE['origin']; 
+ 
+  add_post_meta($order_id, 'utm_source', $utm_source);
+	add_post_meta($order_id, 'utm_medium', $utm_medium);
+	add_post_meta($order_id, 'utm_campaign', $utm_campaign);
+}
+
+add_action( 'woocommerce_new_order', 'add_referral_meta', 10, 1);
+function add_referral_meta( $order_id ){
+    $ref_url = $_COOKIE['handl_original_ref']; 
+    update_post_meta( $order_id, 'referrer', $ref_url ); 
+	}
+
+add_action( 'add_meta_boxes', 'add_meta_boxes' );
+
+function add_meta_boxes()
+{
+    add_meta_box( 
+        'woocommerce-order-my-custom', 
+        __( 'UTM Tracer' ), 
+        'order_my_custom', 
+        'shop_order', 
+        'side', 
+        'default' 
+    );
+}
+function order_my_custom()
+{
+   global $post;
+
+  if (!empty($post->ID)) {
+ 
+   $utm_source = get_post_meta($post->ID, 'utm_source', true);
+	  $utm_medium = get_post_meta($post->ID, 'utm_medium', true);
+	  $utm_campaign = get_post_meta($post->ID, 'utm_campaign', true);
+	  $ref_url = get_post_meta($post->ID, 'referrer', true);		 
+	  
+	   echo '<table style="border: 1px solid red;">';
+       echo '<tr style="border: 3px solid red; background-color: #f0f0f0; line-height:25px;"><td><font style="color:red;"><strong>UTM Source: </strong></font>' . $utm_source .' </td></tr>';
+	   echo '<tr style="border: 3px solid red; background-color: #ffffff; line-height:25px;"><td><font style="color:orange;"><strong>UTM Medium: </strong></font>'  . $utm_medium . ' </td></tr>';
+	   echo '<tr style="border: 3px solid red; background-color: #f0f0f0; line-height:25px;"><td><font style="color:red;"><strong>UTM Campaign: </strong></font>' . $utm_campaign . ' </td></tr>'; 
+	   echo '<tr style="border: 3px solid red; background-color: #ffffff; line-height:25px;"><td><font style="color:orange;"><strong>Referrer: </strong></font>' . $ref_url. ' </td></tr>'; 
+	   echo '</table>';
+	   echo '<br>';
+  }
+}
+/*END  Add Custom UTM Tracer in WooCommerce orders dashboard  ===R===*/
